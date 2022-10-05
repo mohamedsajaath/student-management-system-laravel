@@ -1,0 +1,66 @@
+*{
+    margin:0px;
+    padding:0px;
+}
+body{
+    max-width: 100vw;
+}
+.main-row{
+    padding:30px;
+
+    
+}
+.std-img{
+    display:block;
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+.table{
+    margin-top: 50%;
+}
+
+.nav-div{
+    color:white;
+    padding:5px;
+   width:100vw;
+    
+}
+.login{
+    position: absolute;
+    top:5px;
+    right: 5px;
+    min-width: -500px;
+    
+}
+.button-ed{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+
+}
+.edit-btn{
+    background-color: #EF7453;
+    color:white;
+    border:none;
+}
+.delete-btn{
+    background-color: #182E39;
+    color:white;
+    border:none; 
+}
+
+.add-btn{
+    width: 40px;
+    height: 30px;
+    background-color: #28556C;
+    color:white;
+    border:none; 
+    border-radius: 5px;
+}
+
+.clear-img{
+    display:block;
+    margin-left: auto;
+    margin-right: auto;
+}

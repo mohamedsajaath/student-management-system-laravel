@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\Student;
 
 class StudentController extends Controller
 {
@@ -13,7 +16,9 @@ class StudentController extends Controller
      */
     public function index()
     {
-      
+
+        $students = Student::get();
+        return view('student/index', ['students' => $students]);
     }
 
     /**
@@ -34,7 +39,22 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $returns = Student::validateAndAssign($request);
+
+        $student = Student::create([
+            'index_num' => $returns[1],
+            'first_name' => $returns[2],
+            'last_name' => $returns[3],
+            'age' => $returns[4],
+            'description' => $returns[5],
+        ]);
+
+        $response = [
+            'msg' => 'success',
+            'student' => $student,
+        ];
+        return response()->json($response);
     }
 
     /**
@@ -56,7 +76,8 @@ class StudentController extends Controller
      */
     public function edit($id)
     {
-        //
+        $student = Student::query()->where('id', "=", $id)->first();
+        return $student;
     }
 
     /**
@@ -66,9 +87,14 @@ class StudentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $returns = Student::validateAndAssign($request);
+        $student =  Student::find($returns[0]);
+        $student = Student::updatedata($student, $returns);
+        $student->save();
+        $response = Student::updateResponse($returns);
+        return response()->json($response);
     }
 
     /**
@@ -79,6 +105,6 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Student::query()->where('id', '=', $id)->delete();
     }
 }
