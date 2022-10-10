@@ -64,3 +64,16 @@ body{
     margin-left: auto;
     margin-right: auto;
 }
+
+.img-student{
+    /* margin-top: 20px; */
+    max-width:40px;
+}
+
+.edit_image{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width:10em;
+    border-radius: 50%;
+}

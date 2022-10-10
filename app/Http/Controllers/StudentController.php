@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Http\Requests\StudentStoreRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Student;
+use Exception;
+use  App\Helpers\Services\StudentService;
 
 class StudentController extends Controller
 {
@@ -37,24 +39,37 @@ class StudentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StudentStoreRequest $request)
     {
+        try {
 
-        $returns = Student::validateAndAssign($request);
+            $imageExtension = $request->file('image')->extension();
+            $imgName = "user" . time() . "." . $imageExtension;
+            $path = request('image')->storeAs(
+                'public/images/users',
+                $imgName
+            );
 
-        $student = Student::create([
-            'index_num' => $returns[1],
-            'first_name' => $returns[2],
-            'last_name' => $returns[3],
-            'age' => $returns[4],
-            'description' => $returns[5],
-        ]);
+            $student = StudentService::store(
+                $request->get('index'),
+                request('first'),
+                request('last'),
+                request('age'),
+                request('description'),
+                $imgName
+            );
 
-        $response = [
-            'msg' => 'success',
-            'student' => $student,
-        ];
-        return response()->json($response);
+            $response = [
+                'msg' => 'success',
+                'student' => $student,
+            ];
+            return response()->json($response);
+        } catch (Exception $err) {
+            $response = [
+                'message' =>  $err->getMessage(),
+            ];
+            return response()->json($response, 422);
+        }
     }
 
     /**
@@ -89,11 +104,11 @@ class StudentController extends Controller
      */
     public function update(Request $request)
     {
-        $returns = Student::validateAndAssign($request);
+        $returns = StudentService::validateAndAssign($request);
         $student =  Student::find($returns[0]);
-        $student = Student::updatedata($student, $returns);
+        $student = StudentService::updatedata($student, $returns);
         $student->save();
-        $response = Student::updateResponse($returns);
+        $response = StudentService::updateResponse($returns);
         return response()->json($response);
     }
 
@@ -105,6 +120,17 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        Student::query()->where('id', '=', $id)->delete();
+        try {
+            Student::query()->where('id', '=', $id)->delete();
+            $response = [
+                "msg" => "success"
+            ];
+            return response()->json($response);
+        } catch (Exception $exception) {
+            $response = [
+                "message" => $exception->getMessage()
+            ];
+            return response()->json($response, 422);
+        }
     }
 }

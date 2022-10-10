@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,20 +16,27 @@ class Student extends Model
         'last_name',
         'age',
         'description',
+        'std_image'
     ];
+
+
+
+
+
+    public static function store($index, $first, $last, $age, $description,$image)
+    {
+        return Student::create([
+            'index_num' => $index,
+            'first_name' => $first,
+            'last_name' =>  $last,
+            'age' =>  $age,
+            'description' => $description,
+            'std_image' => $image,
+        ]);
+    }
 
     public static function validateAndAssign($request)
     {
-
-        $request->validate([
-            'index' => ['required', 'max:10'],
-            'first' => ['required', 'max:15'],
-            'last' => ['required', 'max:15'],
-            'age' => ['required'],
-            'description' => ['required']
-        ]);
-
-
         $id = request('id');
         $index = request('index');
         $fname = request('first');
@@ -36,34 +44,14 @@ class Student extends Model
         $age = request('age');
         $desc = request('description');
 
+        if(strtolower($fname) == "mohamed"){
+            throw new Exception("you guys not allowed");
+        }
+
         return [$id, $index, $fname, $lname, $age, $desc];
     }
 
 
-    public static function updatedata($student, $returns)
-    {
-
-        $student->index_num = $returns[1];
-        $student->first_name = $returns[2];
-        $student->last_name = $returns[3];
-        $student->age = $returns[4];
-        $student->description = $returns[5];
-
-        return $student;
-    }
-
-    public static function  updateResponse($returns)
-    {
-        return [
-            'msg' => 'success',
-            'student' => [
-                "id" => $returns[0],
-                "index_num" => $returns[1],
-                "first_name" => $returns[2],
-                "last_name" => $returns[3],
-                "age" => $returns[4],
-                "description" => $returns[5]
-            ],
-        ];
-    }
+ 
+ 
 }

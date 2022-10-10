@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->integer('age');
             $table->string('description');
+            $table->string('std_image');
             $table->timestamps();
         });
     }

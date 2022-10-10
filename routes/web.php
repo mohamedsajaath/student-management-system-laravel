@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,13 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+Route::get( '/test',function(){
+    return view('test/test');
+});
+
+Route::post('/addimg',[TestController::class,'index'])->name('test');
 
 
 Route::get( '/',[StudentController::class ,'index'])->name('student');

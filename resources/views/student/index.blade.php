@@ -3,14 +3,9 @@
 
 
 @section('content')
-
-
-
     <div class="row main-row" style="margin: 0;">
-        <div class="col-12 col-md-12 col-sm-12 col-xs-12" 
-            style="height: 400px;">
-            <img src="{{ asset('images/students.jpg') }}" 
-            alt="students" class="std-img">
+        <div class="col-12 col-md-12 col-sm-12 col-xs-12" style="height: 400px;">
+            <img src="{{ asset('images/students.jpg') }}" alt="students" class="std-img">
         </div>
 
         <div class="col-12 col-md-12  col-sm-12 col-xs-12">
@@ -19,6 +14,7 @@
                 <thead class="thead-light">
 
                     <tr>
+                        <th scope="col">#</th>
                         <th scope="col">index</th>
                         <th scope="col">First Name</th>
                         <th scope="col">Last Name</th>
@@ -33,8 +29,10 @@
 
 
                     @foreach ($students as $student)
-                        <tr>
-                            <th scope="row">{{ $student->index_num }}</th>
+                        <tr class="table-row">
+                            <td><img src="{{ asset('storage/images/users/' . $student->std_image) }}" class="img-student" />
+                            </td>
+                            <td>{{ $student->index_num }}</td>
                             <td>{{ $student->first_name }}</td>
                             <td>{{ $student->last_name }}</td>
                             <td>{{ $student->age }}</td>
@@ -59,7 +57,6 @@
     </div>
 
     @include('layouts/modal')
-
 @endsection
 
 @section('script')
@@ -82,37 +79,122 @@
                 modaltoggle(content);
             });
             // store
-            $(document).on('click', '.save', function(e) {
+            $(document).on('click', '.save', async function(e) {
                 e.preventDefault();
 
-                const form = $(this).closest('form');
 
-                formData = form.serializeArray();
+                let formData = new FormData();
+                let index = $('#index').val();
+                let first = $('#first').val();
+                let last = $('#last').val();
+                let age = $('#age').val();
+                let desc = $('#description').val();
+                let img = $('#image')[0].files;
 
-                formValues = setformdata(formData);
 
-                let url = `${baseURL}/store`;
-                let type = 'post';
-                let data = {
-                    index: formValues.index,
-                    first: formValues.first,
-                    last: formValues.last,
-                    age: formValues.age,
-                    description: formValues.desc,
-                    _token: csrfToken
-                };
 
-                ajaxRequeststore(url, type, data, function(response) {
-                    let msg = response.msg;
-                    let student = response.student;
-                    console.log(response);
-                    console.log();
+                try {
+                    if (img.length > 0) {
+                        formData.append("image", img[0]);
+                        formData.append("index", index);
+                        formData.append("first", first);
+                        formData.append("last", last);
+                        formData.append("age", age);
+                        formData.append("description", desc);
+                        formData.append("_token", csrfToken);
 
-                    addAndClose(student);
-                });
+
+                        $.ajax({
+                            url: "{{ url('/store') }}",
+                            type: "post",
+                            cache: false,
+                            async: true,
+                            encType: 'multipart/form-data',
+                            contentType: false,
+                            processData: false,
+                            data: formData,
+                            success: function(response) {
+                                console.log(response.student);
+                                addAndClose(response.student);
+                            },
+                        });
+
+
+                    } else {
+                        $(".err-msg").text("select an image");
+                    }
+
+
+                } catch (err) {
+                    console.log(err);
+                }
+
+
+
+
+
+
+
+
+
+                // const form = $(this).closest('form');
+
+                // formData = form.serializeArray();
+
+                // formValues = setformdata(formData);
+
+                // let url = `${baseURL}/store`;
+                // let type = 'post';
+                // let data = {
+                //     index: formValues.index,
+                //     first: formValues.first,
+                //     last: formValues.last,
+                //     age: formValues.age,
+                //     description: formValues.desc,
+                //     _token: csrfToken
+                // };
+
+                // try {
+                //     let response = await ajaxRequeststore(url, type, data);
+                //     let msg = response.msg;
+                //     let student = response.student;
+                //     console.log(response);
+                //     addAndClose(student);
+                // } catch (err) {
+                //     $('.err-msg').html(err);
+                // }
+
+
+                // ajaxRequeststore(url, type, data)
+                //     .then(function(response) {
+                //         let msg = response.msg;
+                //         let student = response.student;
+                //         console.log(response);
+
+                //         addAndClose(student);
+
+                //     })
+                //     .catch(function(err) {
+                //         $('.err-msg').html(err);
+                //     });
+
+                // ajaxRequeststore(url, type, data, function(response) {
+                //     let msg = response.msg;
+                //     let student = response.student;
+                //     console.log(response);
+                //     console.log();
+
+                //     addAndClose(student);
+                // });
 
             });
         }
+
+
+        let isEmpty = str => {
+            return (!str || str.length === 0 || str === '' || str.length === 0 || typeof str === undefined || str ===
+                null);
+        };
 
         function dataEdit() {
             // edit modal
@@ -169,12 +251,24 @@
                     description: formValues.desc,
                     _token: csrfToken
                 };
-                ajaxRequeststore(url, type, data, function(response) {
-                    let msg = response.msg;
-                    let student = response.student;
-                    console.log(msg);
-                    addAndClose(student);
-                });
+
+                ajaxRequeststore(url, type, data)
+                    .then(function(response) {
+                        //     let msg = response.msg;
+                        let student = response.student;
+                        console.log(student);
+                        addAndClose(student);
+                    });
+
+
+
+
+                // ajaxRequeststore(url, type, data, function(response) {
+                //     let msg = response.msg;
+                //     let student = response.student;
+                //     // console.log(response.student[0]);
+                //     addAndClose(student);
+                // });
 
                 $('.delete-me').closest('tr').remove();
 
@@ -194,7 +288,9 @@
                                     </div>
                                     <div class="modal-body">
                                     <img src="{{ asset('images/clear.png') }}" style="width:100px; " class="clear-img">
+
                                     </div>
+                                    <small class="err-msg" style="color:red;  font-weight:bold; opacity:0.5;"></small>
                                     <div class="modal-footer">
                                     <button type="button" class="btn btn-danger modal-delete">delete</button>
                                     </div>`;
@@ -211,9 +307,13 @@
                 let payload = {
                     _token: csrfToken
                 };
-                ajaxRequestedit(url, "POST", payload, function(response) {});
-                $('.delete-me').closest('tr').remove();
-                $('.close').click();
+                ajaxRequestedit(url, "POST", payload, function(response) {
+                    if (response.msg == "success") {
+                        $('.delete-me').closest('tr').remove();
+                        $('.close').click();
+                    }
+                });
+
             });
         }
 
@@ -223,7 +323,8 @@
         function addAndClose(student) {
             $('.table_body').prepend(`
                                                     <tr>
-                                                        <th scope="row">${student.index_num}</th>
+                                                        <td><img src="{{ asset('storage/images/users/') }}/${student.std_image}" class="img-student"/></td>
+                                                        <th>${student.index_num}</th>
                                                         <td>${student.first_name}</td>
                                                         <td>${student.last_name}</td>
                                                         <td>${student.age}</td>
@@ -265,26 +366,69 @@
             $('.modal-content').html(content);
         }
 
-        function ajaxRequeststore(url, type, data, cb) {
-            $.ajax({
-                url: url,
-                type: type,
-                data: data,
-                success: function(data, status) {
-                    console.log(data);
-                    
-                    cb(data);
-                    
-                },
-                error:function(xhr, ajaxOptions, thrownError){
-                    console.log("error-msg : ", xhr['responseJSON']['message']);
+        function ajaxRequeststore(url, type, data) {
 
-                    $('.err-msg').text( xhr['responseJSON']['message']);
+            return new Promise(function(resolve, reject) {
 
-                }
+                $.ajax({
+                    url: url,
+                    type: type,
+                    data: data,
+                    success: function(data) {
+                        console.log(data);
+                        resolve(data);
+                    },
+                    error: function(jqXHR, exception) {
+                        let msg = '';
+                        if (jqXHR.status === 0) {
+                            msg = 'Not connect.Verify Network.';
+                            console.log('Not connect.Verify Network.');
+                        } else if (jqXHR.status === 404) {
+                            console.log('Requested page not found. [404]');
+                            msg = 'Requested page not found';
+                        } else if (jqXHR.status === 422) {
+                            console.log('Requested page status. [422]');
+                            if (jqXHR.hasOwnProperty('responseJSON')) {
+                                msg += jqXHR.responseJSON.message;
+                                let errors = jqXHR.responseJSON.hasOwnProperty('errors') ? jqXHR
+                                    .responseJSON
+                                    .errors : null;
+                                if (!isEmpty(errors)) {
+                                    let i = 0;
+                                    for (let key in errors) {
+                                        if (errors.hasOwnProperty(key)) {
+                                            msg += "<br/>\u2022" + errors[key];
+                                        }
+                                        i++;
+                                    }
+                                }
+                            }
+                        } else if (jqXHR.status === 500) {
+                            msg = 'Internal Server Error [500].';
+                        } else if (exception === 'parsererror') {
+                            msg = 'Requested JSON parse failed.';
+                            // location.reload();
+                        } else if (exception === 'timeout') {
+                            msg = 'Time out error.';
+                        } else if (exception === 'abort') {
+                            msg = 'Ajax request aborted.';
+                        } else if (jqXHR.responseJSON.hasOwnProperty('message') &&
+                            jqXHR.responseJSON.message == 'CSRF token mismatch.') {
+                            console.log('CSRF token mismatched, page is reloaded');
+                            location.reload();
+                        } else {
+                            msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        }
 
+                        reject(msg);
+
+                    },
+
+                });
             });
+
         }
+
 
         function ajaxRequestedit(url, type, data, cb) {
             $.ajax({
@@ -296,10 +440,10 @@
                     cb(data);
 
                 },
-                error:function(xhr, ajaxOptions, thrownError){
+                error: function(xhr, ajaxOptions, thrownError) {
                     console.log("error-msg : ", xhr['responseJSON']['message']);
 
-                    $('.err-msg').text( xhr['responseJSON']['message']);
+                    $('.err-msg').text(xhr['responseJSON']['message']);
 
                 }
 
@@ -320,6 +464,7 @@
                 <form>
                 <div class="modal-body">
                         @csrf
+                        <img src="{{ asset('storage/images/users/user1665400151.png') }}" class="edit_image">
                         <div class="form-group">
                             <label for="exampleInputEmail1">Index</label>
                             <input type="text" class="form-control" name="index" placeholder="Index Num" value="${index}">
@@ -340,9 +485,13 @@
                             <label for="exampleInputEmail1">Description</label>
                             <input type="text" class="form-control" name="description" placeholder="Description" value="${description}">
                         </div>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Change Image</label>
+                            <input type="file" class="form-control" id="image" name="image" placeholder="Description">
+                        </div>
                 </div>
                 
-                <small class="err-msg" style="color:red; margin-left:1em; font-weight:bold; opacity:0.5;"></small>
+                <small class="err-msg" style="color:red;  font-weight:bold; opacity:0.5;"></small>
                 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary update" data-id="${id}">Save</button>
@@ -387,14 +536,18 @@
                             <label for="exampleInputEmail1">Description</label>
                             <input type="text" class="form-control" id="description" name="description" placeholder="Description">
                         </div>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Student image</label>
+                            <input type="file" class="form-control" id="image" name="image" placeholder="Description">
+                        </div>
                        
                 </div>
                 
-                        <small class="err-msg" style="color:red; margin-left:1em; font-weight:bold; opacity:0.5;"></small>
+                        <small class="err-msg" style="color:red; font-weight:bold; opacity:0.5;"></small>
             
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary save">Save</button>
+                    <button type="button" class="btn btn-primary save">Add</button>
                 </div>
             </form>
 
@@ -402,6 +555,5 @@
 
 
         };
-
     </script>
 @endsection
